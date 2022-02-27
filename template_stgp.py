@@ -1,8 +1,8 @@
-import numpy as np
 import matplotlib.pyplot as plt
-from master import Engine
-from kernels import SquaredExponential
+import numpy as np
 
+from kernels import SquaredExponential
+from master import Engine
 
 ##############
 ### Inputs ###
@@ -52,10 +52,12 @@ gp_info = {
 ### Data ###
 ############
 def data_func(x):
+    """Function aroudn which the mock data is generated"""
     return 10 * x ** 2
 
 
 def make_mock(z, rel_err, func):
+    """Creates mock data realistations"""
     mean = func(z)
     err = 100 * np.ones(len(z))
     cov = np.diag(err ** 2)

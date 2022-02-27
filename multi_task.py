@@ -1,9 +1,10 @@
 import numpy as np
-from sympy import *
 from scipy.linalg import block_diag
+from sympy import *
 
-from kernels.__init__ import get_convolution
 import single_task as stgp
+from kernels.__init__ import get_convolution
+
 
 ################################################################################
 ### Mtgp covfunc class

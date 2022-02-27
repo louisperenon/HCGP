@@ -142,7 +142,7 @@ class GP:
             return mean
 
     def predict_cov_01(self, pred_x):
-        """ """
+        """Computes the covariance matrix between latent function and its first derivative"""
         cov_xstar_x = self.covfunc.get_K(self.hyp_values, pred_x, self.data["x"])
         d_cov_xstar_xstar = self.covfunc.get_dK_dY(self.hyp_values, pred_x, pred_x)
         d_cov_x_xstar = self.covfunc.get_dK_dY(self.hyp_values, self.data["x"], pred_x)

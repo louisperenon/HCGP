@@ -1,10 +1,8 @@
 import numpy as np
-from likelihoods.__init__ import get_likelihood
-from explorers.__init__ import get_minimiser
-from explorers.__init__ import get_sampler
 
 # from plotter import plot_reconstruction
 from defaults import *
+from explorers.__init__ import get_minimiser, get_sampler
 from gp import GP
 
 
@@ -12,32 +10,27 @@ from gp import GP
 ###                            The Master Engine                             ###
 ################################################################################
 class Engine:
-    """ ... """  # docstring has to be written in the future
+    """ ... """  # TODO docstring has to be written in the future
 
     def __init__(self, run_options, gp_info, data):
 
+        self.run_options = run_options
+        self.gp_info = gp_info
+
         # --- Setting the missing info to the defaults values
-        self.set_defaults(run_options, gp_info)
+        self.set_defaults()
 
         # --- Setting the gp
-        self.gp_info = gp_info
         if "n_tasks" not in gp_info.keys():
             import single_task as mode
         else:
             import multi_task as mode
         self.gp_info["mode"] = mode
-        self.gp = GP(gp_info, data)
-
-        # --- Setting the likelihood instance
-        self.loglike = get_likelihood(run_options["likelihood"])(self.gp)
+        self.gp = GP(self.gp_info, data)
 
         # --- Running the choices
         if not "plot" in run_options["method"]:
-            self.sampling_info = self.set_sampling_info(
-                run_options,
-                gp_info,
-            )
-            self.minimiser = get_minimiser(self.sampling_info["minimiser"])
+            self.sampling_info = self.set_sampling_info()
             if "optimisation" in run_options["method"]:
                 self.run_minimise()
                 if run_options["print_plots"]:
@@ -48,46 +41,47 @@ class Engine:
                         "optimised",
                     )
 
-        # # --- Progress checkers
-
     ###############
     ### Setters ###
     ###############
 
     ###
-    def set_defaults(self, run_options, gp_info):
-        keys = run_options.keys()
+    def set_defaults(self):
+        """Sets the missing keys in run_options and gp_info to the default values"""
+        keys = self.run_options.keys()
         if not "method" in keys:
-            run_options["method"] = run_options_method
+            self.run_options["method"] = run_options_method
         if not "print_plots" in keys:
-            run_options["print_plots"] = run_options_print_plots
+            self.run_options["print_plots"] = run_options_print_plots
         if not "likelihood" in keys:
-            run_options["likelihood"] = run_options_likelihood
+            self.run_options["likelihood"] = run_options_likelihood
         if not "minimiser" in keys:
-            run_options["minimiser"] = run_options_minimiser
+            self.run_options["minimiser"] = run_options_minimiser
         if not "sampler" in keys:
-            run_options["sampler"] = run_options_sampler
+            self.run_options["sampler"] = run_options_sampler
 
-        keys = gp_info.keys()
+        keys = self.gp_info.keys()
         if not "matrix_inversion_method" in keys:
-            gp_info["matrix_inversion_method"] = gp_info_matrix_inversion_method
+            self.gp_info["matrix_inversion_method"] = gp_info_matrix_inversion_method
         if not "derivatives" in keys:
-            gp_info["derivatives"] = gp_info_derivatives
+            self.gp_info["derivatives"] = gp_info_derivatives
         if not "gradient" in keys:
-            gp_info["gradient"] = gp_info_gradient
+            self.gp_info["gradient"] = gp_info_gradient
 
     ###
-    def set_sampling_info(self, run_options, gp_info):
+    def set_sampling_info(self):
+        """Sets the sampling_info dict"""
         sampling_info = {
-            "likelihood": run_options["likelihood"],
-            "minimiser": run_options["minimiser"],
-            "sampler": run_options["sampler"],
+            "likelihood": self.run_options["likelihood"],
+            "minimiser": self.run_options["minimiser"],
+            "sampler": self.run_options["sampler"],
         }
-        sampling_info.update(gp_info["mode"].get_sampling_info(gp_info))
+        sampling_info.update(self.gp_info["mode"].get_sampling_info(self.gp_info))
         return sampling_info
 
     ###
     def compute_mlikelihood(self, p):
+        """Compute the -1 * the log marginal likelihood of the GP"""
         if not np.all(
             (self.sampling_info["ranges"][:, 0] <= p)
             & (p <= self.sampling_info["ranges"][:, 1])
@@ -98,7 +92,8 @@ class Engine:
         pars = dict(zip(self.sampling_info["hyp_sampled"], pars))
 
         try:
-            res = -self.loglike.value(pars)
+            self.gp.set_hyp_values(pars)
+            res = -self.gp.log_marginal_likelihood()
         except:
             return np.inf
 
@@ -113,11 +108,13 @@ class Engine:
 
     ###
     def get_optimised_reconstruction(self, x):
+        """sReturn the dictionary of the optimised restruction"""
         res = self.gp_info["mode"].get_reconstruction(x, self.gp, self.gp_info)
         return res
 
     ###
     def get_minimisation_results(self):
+        """Returns the optimisation results"""
         res = {
             "bestfit": self.bestfit,
             "bestsamp": self.bestsamp,
@@ -129,8 +126,9 @@ class Engine:
     ### Runners ###
     ###############
     def run_minimise(self):
-
-        run = self.minimiser(self.compute_mlikelihood, self.sampling_info)
+        """Runs the minimisation given the chosen minimiser chosen"""
+        minimiser = get_minimiser(self.sampling_info["minimiser"])
+        run = minimiser(self.compute_mlikelihood, self.sampling_info)
         self.bestfit = run["bestfit"]
         self.bestsamp = run["bestsamp"]
         self.maxlnl = self.gp.log_marginal_likelihood()
