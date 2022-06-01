@@ -10,7 +10,7 @@ This code allows to optimise single-task and multi-task Gaussian processes. For 
 
 ## Prerequisites, installation, and usage
 
-    This code uses: NumPy, SymPy
+This code uses: NumPy, SymPy
 
 ## License
 
