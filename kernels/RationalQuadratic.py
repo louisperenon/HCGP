@@ -2,11 +2,11 @@ from sympy import *
 import numpy as np
 
 
-class Matern32:
-    def __init__(self, sigma="sigma", xi="xi"):
+class RationalQuadratic:
+    def __init__(self, sigma="sigma", xi="xi", alpha="alpha"):
 
-        self.name = "Matern32"
-        self.n_dim = 2
+        self.name = "RationalQuadratic"
+        self.n_dim = 3
 
         ### input vectors
         self.sp_X = Symbol("X", real=True)
@@ -26,6 +26,13 @@ class Matern32:
             self.sp_xi = Symbol(xi, real=True)
             self.sp_hyps.append(self.sp_xi)
 
+        if isinstance(alpha, (int, float)):
+            self.sp_alpha = alpha
+        else:
+            self.sp_alpha = Symbol(alpha, real=True)
+            self.sp_hyps.append(self.sp_alpha)
+
         ### Kernel
-        ratio = Abs(self.sp_X - self.sp_Y) / self.sp_xi
-        self.sp_K = self.sp_sigma ** 2 * (1 + sqrt(3) * ratio) * exp(-sqrt(3) * ratio)
+        self.sp_K = self.sp_sigma ** 2 / (
+            (1 + Abs(self.sp_X - self.sp_Y) ** 2 / (2 * self.sp_alpha)) ** self.sp_alpha
+        )

@@ -2,10 +2,10 @@ from sympy import *
 import numpy as np
 
 
-class Matern32:
+class Matern52:
     def __init__(self, sigma="sigma", xi="xi"):
 
-        self.name = "Matern32"
+        self.name = "Matern52"
         self.n_dim = 2
 
         ### input vectors
@@ -28,4 +28,8 @@ class Matern32:
 
         ### Kernel
         ratio = Abs(self.sp_X - self.sp_Y) / self.sp_xi
-        self.sp_K = self.sp_sigma ** 2 * (1 + sqrt(3) * ratio) * exp(-sqrt(3) * ratio)
+        self.sp_K = (
+            self.sp_sigma ** 2
+            * (1 + sqrt(5) * ratio + 5.0 / 3.0 * ratio ** 2)
+            * exp(-sqrt(5) * ratio)
+        )

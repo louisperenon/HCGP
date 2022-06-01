@@ -1,9 +1,10 @@
+import sys
 import numpy as np
 
 # from plotter import plot_reconstruction
-from defaults import *
-from explorers.__init__ import get_minimiser, get_sampler
-from gp import GP
+from .defaults import *
+from .explorers.__init__ import get_minimiser, get_sampler
+from .gp import GP
 
 
 ################################################################################
@@ -22,9 +23,9 @@ class Engine:
 
         # --- Setting the gp
         if "n_tasks" not in gp_info.keys():
-            import single_task as mode
+            import HCGP.single_task as mode
         else:
-            import multi_task as mode
+            import HCGP.multi_task as mode
         self.gp_info["mode"] = mode
         self.gp = GP(self.gp_info, data)
 
@@ -46,7 +47,7 @@ class Engine:
     ###############
 
     ###
-    def set_defaults(self):
+    def set_defaults(self):  # TODO Make it a function
         """Sets the missing keys in run_options and gp_info to the default values"""
         keys = self.run_options.keys()
         if not "method" in keys:
@@ -69,7 +70,7 @@ class Engine:
             self.gp_info["gradient"] = gp_info_gradient
 
     ###
-    def set_sampling_info(self):
+    def set_sampling_info(self):  # TODO Make it a function
         """Sets the sampling_info dict"""
         sampling_info = {
             "likelihood": self.run_options["likelihood"],
@@ -108,7 +109,7 @@ class Engine:
 
     ###
     def get_optimised_reconstruction(self, x):
-        """sReturn the dictionary of the optimised restruction"""
+        """Return the dictionary of the optimised restruction"""
         res = self.gp_info["mode"].get_reconstruction(x, self.gp, self.gp_info)
         return res
 
@@ -125,7 +126,7 @@ class Engine:
     ###############
     ### Runners ###
     ###############
-    def run_minimise(self):
+    def run_minimise(self):  # TODO Make it a function
         """Runs the minimisation given the chosen minimiser chosen"""
         minimiser = get_minimiser(self.sampling_info["minimiser"])
         run = minimiser(self.compute_mlikelihood, self.sampling_info)

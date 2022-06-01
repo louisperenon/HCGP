@@ -9,10 +9,11 @@ def run(function, sampling_info):
     res = optimize.differential_evolution(
         function,
         sampling_info["ranges"],
+        # tol=1e-6,
         tol=1e-12,
         polish=True,
         disp=True,
-        maxiter=10000,
+        maxiter=20000,
     )
 
     bestfit = {}

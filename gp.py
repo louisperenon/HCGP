@@ -1,6 +1,6 @@
 import numpy as np
 
-from defaults import *
+# from .defaults import *
 
 
 def mat_inv(mat, method="QR"):
@@ -39,7 +39,7 @@ class GP:
         self.covfunc = gp_info["mode"].get_covfunc(gp_info)
         test = np.all([isinstance(hyp, (int, float)) for hyp in self.covfunc.sp_hyps])
         if test:  # needed if hyps given as numbers in the covfunc instance
-            self._check_hyp_values([])
+            self.check_hyp_values([])
 
         # > Setting the matrix inversion method
         if "matrix_inversion_method" in gp_info:
@@ -50,7 +50,7 @@ class GP:
         # Setting default attributes
         self.hyp_values = None
 
-    def _check_hyp_values(self, p):
+    def check_hyp_values(self, p):
         """Checker that the K+C matrix is invertible"""
         self.cov_kc = (
             self.covfunc.get_K(p, self.data["x"], self.data["x"]) + self.data["cov"]
@@ -68,7 +68,7 @@ class GP:
     def set_hyp_values(self, p):
         """Hyperparameter values setter"""
         self.hyp_values = p.values()
-        self._check_hyp_values(self.hyp_values)
+        self.check_hyp_values(self.hyp_values)
 
     def get_hyp_values(self):
         """Hyperparameter values getter"""

@@ -2,15 +2,17 @@ import numpy as np
 from scipy.linalg import block_diag
 from sympy import *
 
-import single_task as stgp
-from kernels.__init__ import get_convolution
+from .kernels.__init__ import get_convolution
+from .single_task import get_covfunc as stgp_get_covfunc
 
 
-################################################################################
-### Mtgp covfunc class
-### https://www.ijcai.org/Proceedings/11/Papers/238.pdf
-################################################################################
+# *******************************************************************
+# Mtgp covfunc class
+# https://www.ijcai.org/Proceedings/11/Papers/238.pdf
+# *******************************************************************
 class Covfunc:
+    """Covariance function class for single task GPs"""
+
     def __init__(self, gp_info):
 
         ### Number of function to reconstruct simultaneously
@@ -41,7 +43,7 @@ class Covfunc:
             if not "gradient" in gp_info["func_" + str(i + 1)]:
                 gp_info["func_" + str(i + 1)]["gradient"] = False
 
-            self.covfuncs[i][i] = stgp.get_covfunc(gp_info["func_" + str(i + 1)])
+            self.covfuncs[i][i] = stgp_get_covfunc(gp_info["func_" + str(i + 1)])
             self.sp_K[i][i] = self.covfuncs[i][i].sp_K
             self.n_dims.append(gp_info["func_" + str(i + 1)]["kernel"].n_dim)
 
@@ -82,7 +84,7 @@ class Covfunc:
         self.sp_dK_dY = np.empty([self.n_tasks, self.n_tasks]).tolist()
         self.sp_d2K_dY2 = np.empty([self.n_tasks, self.n_tasks]).tolist()
         self.sp_d2K_dXdY = np.empty([self.n_tasks, self.n_tasks]).tolist()
-        self.sp_d4K_dX2dY2 = np.empty([self.n_tasks, self.n_tasks]).tolist()
+        # self.sp_d4K_dX2dY2 = np.empty([self.n_tasks, self.n_tasks]).tolist()
         for i in range(self.n_tasks):
             for j in range(self.n_tasks):
                 if i <= j:
@@ -93,14 +95,14 @@ class Covfunc:
                     self.sp_d2K_dXdY[i][j] = simplify(
                         self.sp_dK_dY[i][j].diff(self.sp_X)
                     )
-                    self.sp_d4K_dX2dY2[i][j] = simplify(
-                        self.sp_d2K_dY2[i][j].diff(self.sp_X).diff(self.sp_X)
-                    )
+                    # self.sp_d4K_dX2dY2[i][j] = simplify(
+                    #     self.sp_d2K_dY2[i][j].diff(self.sp_X).diff(self.sp_X)
+                    # )
 
         self.dK_dY_ = np.empty([self.n_tasks, self.n_tasks]).tolist()
         self.d2K_dY2_ = np.empty([self.n_tasks, self.n_tasks]).tolist()
         self.d2K_dXdY_ = np.empty([self.n_tasks, self.n_tasks]).tolist()
-        self.d4K_dX2dY2_ = np.empty([self.n_tasks, self.n_tasks]).tolist()
+        # self.d4K_dX2dY2_ = np.empty([self.n_tasks, self.n_tasks]).tolist()
 
         for i in range(self.n_tasks):
             for j in range(self.n_tasks):
@@ -120,11 +122,11 @@ class Covfunc:
                         self.sp_d2K_dXdY[i][j],
                         modules="numpy",
                     )
-                    self.d4K_dX2dY2_[i][j] = lambdify(
-                        (self.sp_hyps[i], self.sp_X, self.sp_Y),
-                        self.sp_d4K_dX2dY2[i][j],
-                        modules="numpy",
-                    )
+                    # self.d4K_dX2dY2_[i][j] = lambdify(
+                    #     (self.sp_hyps[i], self.sp_X, self.sp_Y),
+                    #     self.sp_d4K_dX2dY2[i][j],
+                    #     modules="numpy",
+                    # )
 
                 if i < j:
                     self.dK_dY_[i][j] = lambdify(
@@ -154,15 +156,15 @@ class Covfunc:
                         self.sp_d2K_dXdY[i][j],
                         modules="numpy",
                     )
-                    self.d4K_dX2dY2_[i][j] = lambdify(
-                        (
-                            flatten([self.sp_hyps[i], self.sp_hyps[j]]),
-                            self.sp_X,
-                            self.sp_Y,
-                        ),
-                        self.sp_d4K_dX2dY2[i][j],
-                        modules="numpy",
-                    )
+                    # self.d4K_dX2dY2_[i][j] = lambdify(
+                    #     (
+                    #         flatten([self.sp_hyps[i], self.sp_hyps[j]]),
+                    #         self.sp_X,
+                    #         self.sp_Y,
+                    #     ),
+                    #     self.sp_d4K_dX2dY2[i][j],
+                    #     modules="numpy",
+                    # )
 
     def set_K_gradient(self):
         pass
@@ -328,14 +330,14 @@ def get_reconstruction(x, gp, gp_info):
 
     if derivatives:
         mean_d1, cov_d1 = gp.predict_d1(x, predict_cov=True)
-        mean_d2, cov_d2 = gp.predict_d2(x, predict_cov=True)
+        # mean_d2, cov_d2 = gp.predict_d2(x, predict_cov=True)
         cov_01 = gp.predict_cov_01(x)
         res.update(
             {
                 "mean_d1": mean_d1,
                 "cov_d1": cov_d1,
-                "mean_d2": mean_d2,
-                "cov_d2": cov_d2,
+                # "mean_d2": mean_d2,
+                # "cov_d2": cov_d2,
                 "cov_01": cov_01,
             }
         )
@@ -374,19 +376,19 @@ def get_reconstruction(x, gp, gp_info):
                         i * len(x[i]) : (i + 1) * len(x[i]),
                         i * len(x[i]) : (i + 1) * len(x[i]),
                     ],
-                    "mean_d2": mean_d2[i * len(x[i]) : (i + 1) * len(x[i])],
-                    "err_d2": np.sqrt(
-                        np.diag(
-                            cov_d2[
-                                i * len(x[i]) : (i + 1) * len(x[i]),
-                                i * len(x[i]) : (i + 1) * len(x[i]),
-                            ]
-                        )
-                    ),
-                    "cov_d2": cov_d2[
-                        i * len(x[i]) : (i + 1) * len(x[i]),
-                        i * len(x[i]) : (i + 1) * len(x[i]),
-                    ],
+                    # "mean_d2": mean_d2[i * len(x[i]) : (i + 1) * len(x[i])],
+                    # "err_d2": np.sqrt(
+                    #     np.diag(
+                    #         cov_d2[
+                    #             i * len(x[i]) : (i + 1) * len(x[i]),
+                    #             i * len(x[i]) : (i + 1) * len(x[i]),
+                    #         ]
+                    #     )
+                    # ),
+                    # "cov_d2": cov_d2[
+                    #     i * len(x[i]) : (i + 1) * len(x[i]),
+                    #     i * len(x[i]) : (i + 1) * len(x[i]),
+                    # ],
                     "cov_01": cov_01[
                         i * len(x[i]) : (i + 1) * len(x[i]),
                         i * len(x[i]) : (i + 1) * len(x[i]),

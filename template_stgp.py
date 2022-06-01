@@ -56,7 +56,7 @@ def data_func(x):
     return 10 * x ** 2
 
 
-def make_mock(z, rel_err, func):
+def make_mock(z, func):
     """Creates mock data realistations"""
     mean = func(z)
     err = 100 * np.ones(len(z))
