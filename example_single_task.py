@@ -4,10 +4,10 @@ import numpy as np
 from kernels import SquaredExponential
 from master import Engine
 
+
 ##############
 ### Inputs ###
 ##############
-
 pred_z = np.linspace(0, 10, 100)
 data_z = np.linspace(1, 9, 50)
 
@@ -15,7 +15,6 @@ data_z = np.linspace(1, 9, 50)
 #################
 ### GP config ###
 #################
-
 run_options = {
     "name_run": "test",
     "method": ["optimisation"],
@@ -52,14 +51,14 @@ gp_info = {
 ### Data ###
 ############
 def data_func(x):
-    """Function aroudn which the mock data is generated"""
+    """Function around  which the mock data is generated"""
     return 10 * x ** 2
 
 
-def make_mock(z, func):
+def make_mock(z, err_rel, func):
     """Creates mock data realistations"""
     mean = func(z)
-    err = 100 * np.ones(len(z))
+    err = err_rel * mean
     cov = np.diag(err ** 2)
     return {
         "x": z,
@@ -75,14 +74,13 @@ data = make_mock(data_z, 0.1, data_func)
 ####################
 ### Computations ###
 ####################
-
 results = Engine(run_options, gp_info, data)
 reco = results.get_optimised_reconstruction(pred_z)
+
 
 #############
 ### Plots ###
 #############
-
 color_data = "black"
 color_gp = "blue"
 color_gpd = "purple"

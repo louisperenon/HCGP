@@ -6,8 +6,6 @@ from scipy.interpolate import interp1d
 from scipy import misc
 import classy
 
-
-# sys.path.append("/home/louis/Dropbox/1_WORK/MTGP code pro/code")
 from master import Engine
 from kernels import SquaredExponential
 import multi_task as mtgp

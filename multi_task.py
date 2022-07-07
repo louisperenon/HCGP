@@ -2,8 +2,8 @@ import numpy as np
 from scipy.linalg import block_diag
 from sympy import *
 
-from .kernels.__init__ import get_convolution
-from .single_task import get_covfunc as stgp_get_covfunc
+from kernels.__init__ import get_convolution
+from single_task import get_covfunc as stgp_get_covfunc
 
 
 # *******************************************************************

@@ -63,16 +63,14 @@ class Covfunc:
         self.sp_dK_dY = simplify(self.sp_K.diff(self.sp_Y, real=True))
         self.sp_d2K_dY2 = simplify(self.sp_dK_dY.diff(self.sp_Y, real=True))
         self.sp_d2K_dXdY = simplify(self.sp_dK_dY.diff(self.sp_X, real=True))
-        # self.sp_d4K_dX2dY2 = simplify(
-        #     self.sp_d2K_dY2.diff(self.sp_X, real=True).diff(self.sp_X, real=True)
-        # )
-        print(self.sp_d2K_dXdY)
+        self.sp_d4K_dX2dY2 = simplify(
+            self.sp_d2K_dY2.diff(self.sp_X, real=True).diff(self.sp_X, real=True)
+        )
 
         self.sp_expressions["dK_dY"] = str(self.sp_dK_dY)
         self.sp_expressions["d2K_dY2"] = str(self.sp_d2K_dY2)
         self.sp_expressions["d2K_dXdY"] = str(self.sp_d2K_dXdY)
-        # print(str(self.sp_d2K_dXdY))
-        # self.sp_expressions["d4K_dX2dY2"] = str(self.sp_d4K_dX2dY2)
+        self.sp_expressions["d4K_dX2dY2"] = str(self.sp_d4K_dX2dY2)
 
         self.dK_dY_ = lambdify(
             (sympy_hyps, self.sp_X, self.sp_Y), self.sp_dK_dY, modules="numpy"
@@ -87,11 +85,11 @@ class Covfunc:
             self.sp_d2K_dXdY,
             # modules="numpy",
         )
-        # self.d4K_dX2dY2_ = lambdify(
-        #     (sympy_hyps, self.sp_X, self.sp_Y),
-        #     self.sp_d4K_dX2dY2,
-        #     modules="numpy",
-        # )
+        self.d4K_dX2dY2_ = lambdify(
+            (sympy_hyps, self.sp_X, self.sp_Y),
+            self.sp_d4K_dX2dY2,
+            modules="numpy",
+        )
 
     def set_K_grad(self, sympy_hyps):
         self.sp_grad_K = self.sp_K
@@ -131,10 +129,10 @@ class Covfunc:
         res = self.d2K_dXdY_(p, X, Y)
         return res
 
-    # def get_d4K_dX2dY2(self, p, X, Y):
-    #     X, Y = self._get_XY(X, Y)
-    #     res = self.d4K_dX2dY2_(p, X, Y)
-    #     return res
+    def get_d4K_dX2dY2(self, p, X, Y):
+        X, Y = self._get_XY(X, Y)
+        res = self.d4K_dX2dY2_(p, X, Y)
+        return res
 
     ### Printers
     def print_sympy_expressions(self):
@@ -206,15 +204,15 @@ def get_reconstruction(x, gp, gp_info):
                 "cov_01": cov_01,
             }
         )
-        # mean, cov = gp.predict_d2(x, predict_cov=True)
-        # err = np.sqrt(np.diag(cov))
-        # res.update(
-        #     {
-        #         "mean_d2": mean,
-        #         "err_d2": err,
-        #         "cov_d2": cov,
-        #     }
-        # )
+        mean, cov = gp.predict_d2(x, predict_cov=True)
+        err = np.sqrt(np.diag(cov))
+        res.update(
+            {
+                "mean_d2": mean,
+                "err_d2": err,
+                "cov_d2": cov,
+            }
+        )
     return res
 
 

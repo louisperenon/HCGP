@@ -1,9 +1,6 @@
 from .SquaredExponential import SquaredExponential
 from .RationalQuadratic import RationalQuadratic
 from .Matern32 import Matern32
-from .Matern52 import Matern52
-from .Matern72 import Matern72
-from .Matern92 import Matern92
 
 
 def get_convolution(K_1, K_2):

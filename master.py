@@ -1,17 +1,16 @@
 import sys
 import numpy as np
 
-# from plotter import plot_reconstruction
-from .defaults import *
-from .explorers.__init__ import get_minimiser, get_sampler
-from .gp import GP
+from defaults import *
+from explorers.__init__ import get_minimiser, get_sampler
+from gp import GP
 
 
 ################################################################################
 ###                            The Master Engine                             ###
 ################################################################################
 class Engine:
-    """ ... """  # TODO docstring has to be written in the future
+    """ ... """  # TODO docstring
 
     def __init__(self, run_options, gp_info, data):
 
