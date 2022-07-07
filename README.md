@@ -6,7 +6,7 @@ with inputs from: Matteo Martinelli and Stéphane Ilić.
 
 ## Purpose of the Code
 
-This code allows to optimise single-task and multi-task Gaussian processes. For the single-task case, the code can compute any combination of kernels and their derivatives given the capacity of SymPy. For the multi-task case, only the Squared Exponential x Squared Exponential convolutions have been implemented so far.
+This code allows to optimise single-task and multi-task Gaussian processes. For the single-task case, the code can compute any combination of kernels and their derivatives given the capacity of SymPy. For the multi-task case, only the case of Squared Exponential x Squared Exponential convolutions has been implemented so far. Derivatives can be computed also.
 
 ## Prerequisites, installation, and usage
 
